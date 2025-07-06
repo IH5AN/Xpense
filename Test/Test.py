@@ -18,6 +18,41 @@ st.set_page_config(
     page_icon="Xpense V5.png"
 )
 
+# Force inject theme manually (bypass config.toml)
+def apply_theme():
+    st.markdown("""
+    <style>
+        /* Warna utama tombol dan teks */
+        :root {
+            --primary-color: #00C853;
+            --background-color: #ffffff;
+            --secondary-background-color: #e8f5e9;
+            --text-color: #000000;
+        }
+
+        .stApp {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .stButton>button {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        h1, h2, h3, h4, h5, h6, label, .css-1v0mbdj, .css-10trblm {
+            color: var(--text-color) !important;
+        }
+
+        .stSelectbox, .stTextInput, .stDateInput {
+            background-color: var(--secondary-background-color);
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_theme()
+
+
 # --- Database Connection ---
 DB_NAME = "users.db"
 
