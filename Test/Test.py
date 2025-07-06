@@ -21,7 +21,6 @@ st.set_page_config(
 def apply_theme():
     st.markdown("""
     <style>
-        /* Warna utama tombol dan teks */
         :root {
             --primary-color: #00C853;
             --background-color: #ffffff;
@@ -39,15 +38,19 @@ def apply_theme():
             color: white;
         }
 
+        input, textarea, .stTextInput > div > div > input {
+            background-color: var(--secondary-background-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
         h1, h2, h3, h4, h5, h6, label, .css-1v0mbdj, .css-10trblm {
             color: var(--text-color) !important;
         }
-
-        .stSelectbox, .stTextInput, .stDateInput {
-            background-color: var(--secondary-background-color);
-        }
     </style>
     """, unsafe_allow_html=True)
+
 
 apply_theme()
 
