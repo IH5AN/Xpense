@@ -24,32 +24,57 @@ def apply_theme():
         :root {
             --primary-color: #00C853;
             --background-color: #ffffff;
-            --secondary-background-color: #e8f5e9;
-            --text-color: #000000;
+            --secondary-background-color: #f1f8e9;
+            --text-color: #212121;
+            --input-border-radius: 6px;
         }
 
         .stApp {
             background-color: var(--background-color);
             color: var(--text-color);
+            font-family: "Segoe UI", "Roboto", sans-serif;
         }
 
         .stButton>button {
             background-color: var(--primary-color);
             color: white;
+            border: none;
+            border-radius: var(--input-border-radius);
+            padding: 0.6em 1.2em;
+            font-weight: bold;
+            transition: 0.2s ease;
+        }
+
+        .stButton>button:hover {
+            background-color: #00b44a;
+            transform: scale(1.02);
         }
 
         input, textarea, .stTextInput > div > div > input {
-            background-color: var(--secondary-background-color) !important;
+            background-color: #ffffff !important;
             color: var(--text-color) !important;
             border: 1px solid #ccc;
-            border-radius: 8px;
+            border-radius: var(--input-border-radius);
+            padding: 0.5em;
+            box-shadow: none;
+            transition: border 0.2s ease;
         }
 
-        h1, h2, h3, h4, h5, h6, label, .css-1v0mbdj, .css-10trblm {
-            color: var(--text-color) !important;
+        input:focus {
+            outline: none !important;
+            border-color: var(--primary-color);
+        }
+
+        h1, h2, h3, h4, h5, h6, label {
+            color: var(--text-color);
+        }
+
+        .stTextInput label {
+            font-weight: 600;
         }
     </style>
     """, unsafe_allow_html=True)
+
 
 
 apply_theme()
