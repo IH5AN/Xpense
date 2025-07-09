@@ -11,7 +11,7 @@ from prophet import Prophet
 import streamlit.components.v1 as components
 import hashlib
 from io import BytesIO
-# import calendar # Removed as it's no longer used after removing laporan_page
+
 st.set_page_config(
     page_title="Xpense",
     layout="wide",
@@ -73,6 +73,18 @@ def initialize_db():
     conn.commit()
     conn.close()
 
+def tampilkan_logo_kiri_atas():
+    logo_base64 = base64.b64encode(open("Xpense V5.png", "rb").read()).decode()
+    st.markdown(
+        f"""
+        <div style='position: fixed; top: 15px; left: 15px; z-index: 9999;'>
+            <img src='data:image/png;base64,{logo_base64}' width='40' style='border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 def get_user_settings(username):
     conn = get_connection()
     cursor = conn.cursor()
@@ -81,49 +93,112 @@ def get_user_settings(username):
     conn.close()
     return result
 
+
 # --- Login / Register Page ---
 def login_register_page():
-    st.markdown("<h1 style='text-align: center; color: #4CAF50;'>Selamat Datang di Aplikasi Xpense</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 18px;'>Kelola keuangan Anda dengan lebih mudah dan cerdas!</p>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([2, 6, 2])
+
+    with col2:
+        logo_base64 = base64.b64encode(open("Xpense V5.png", "rb").read()).decode()
+
+        with st.container():
+            st.markdown(
+                f"""
+                <div style='display: flex; justify-content: center; align-items: center; flex-direction: column;'>
+                    <img src='data:image/png;base64,{logo_base64}' width='150' style='margin-bottom: 20px;'/>
+                    <h1 style='text-align: center; margin-bottom: 0; color: #4CAF50;'>Selamat Datang di Aplikasi Xpense</span></h1>
+                    <p style='text-align: center; font-size: 18px; margin-top: 0;'>Kelola keuangan Anda dengan lebih mudah dan cerdas!</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
 
     # Centering the login/register form
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
+    col1_form, col2_form, col3_form = st.columns([1, 2, 1])
+    with col2_form:
         tab1, tab2 = st.tabs(["Masuk", "Daftar"])
 
         with tab1:
             st.subheader("Masuk ke Akun Anda")
-            username_login = st.text_input("Username", key="username_login")
-            password_login = st.text_input("Password", type="password", key="password_login")
+            
+            # Login instructions
+            
+            username_login = st.text_input(
+                "Masukkan Username Anda",
+                placeholder="Contoh: budisantoso123",
+                key="username_login"
+            )
+            st.caption("Gunakan username yang sudah didaftarkan")
+            
+            password_login = st.text_input(
+                "Masukkan Password Anda", 
+                type="password",
+                placeholder="Masukkan password Anda",
+                key="password_login"
+            )
+            st.caption("Password bersifat case-sensitive (perhatikan huruf besar/kecil)")
 
             if st.button("Login", use_container_width=True):
-                conn = get_connection()
-                cursor = conn.cursor()
-                cursor.execute("SELECT password_hash FROM users WHERE username = ?", (username_login,))
-                user_data = cursor.fetchone()
-                conn.close()
+                if not username_login or not password_login:
+                    st.warning("Mohon isi username dan password")
+                else:
+                    conn = get_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT password_hash FROM users WHERE username = ?", (username_login,))
+                    user_data = cursor.fetchone()
+                    conn.close()
 
-                if user_data:
-                    if bcrypt.checkpw(password_login.encode('utf-8'), user_data[0]):
-                        st.session_state["logged_in"] = True
-                        st.session_state["username"] = username_login
-                        st.session_state["current_page"] = "Home" # Redirect to home after login
-                        st.success("✅ Login Berhasil!")
-                        st.rerun()
+                    if user_data:
+                        if bcrypt.checkpw(password_login.encode('utf-8'), user_data[0]):
+                            st.session_state["logged_in"] = True
+                            st.session_state["username"] = username_login
+                            st.session_state["current_page"] = "Home"
+                            st.success("✅ Login Berhasil!")
+                            st.rerun()
+                        else:
+                            st.error("Username atau password salah.")
                     else:
                         st.error("Username atau password salah.")
-                else:
-                    st.error("Username atau password salah.")
+            
+            
 
         with tab2:
             st.subheader("Daftar Akun Baru")
-            username_register = st.text_input("Username", key="username_register")
-            password_register = st.text_input("Password", type="password", key="password_register")
-            confirm_password_register = st.text_input("Konfirmasi Password", type="password", key="confirm_password_register")
+            
+            # Improved form with better instructions
+           
+            
+            username_register = st.text_input(
+                "Buat Username Anda",
+                placeholder="Contoh: budisantoso123",
+                key="username_register"
+            )
+            st.caption("Gunakan huruf dan angka tanpa spasi (minimal 3 karakter)")
+            
+            password_register = st.text_input(
+                "Buat Password Anda", 
+                type="password",
+                placeholder="Contoh: Budi1234",
+                key="password_register"
+            )
+            st.caption("Minimal 6 karakter (disarankan kombinasi huruf besar, kecil, dan angka)")
+            
+            confirm_password_register = st.text_input(
+                "Konfirmasi Password Anda",
+                type="password", 
+                placeholder="Ketik ulang password yang sama",
+                key="confirm_password_register"
+            )
+            st.caption("Pastikan password yang dimasukkan sama dengan di atas")
 
             if st.button("Daftar", use_container_width=True):
                 if not username_register or not password_register or not confirm_password_register:
                     st.warning("Mohon lengkapi semua kolom.")
+                elif len(username_register) < 3:
+                    st.error("Username harus minimal 3 karakter.")
+                elif len(password_register) < 6:
+                    st.error("Password harus minimal 6 karakter.")
                 elif password_register != confirm_password_register:
                     st.error("Password dan konfirmasi password tidak cocok.")
                 else:
@@ -137,7 +212,7 @@ def login_register_page():
                     else:
                         hashed_password = bcrypt.hashpw(password_register.encode('utf-8'), bcrypt.gensalt())
                         cursor.execute("INSERT INTO users (username, password_hash, nama_akun) VALUES (?, ?, ?)", 
-                                       (username_register, hashed_password, username_register)) # Default nama_akun to username
+                                       (username_register, hashed_password, username_register))
                         conn.commit()
                         st.success("✅ Registrasi Berhasil! Silakan Login.")
                     conn.close()
@@ -184,6 +259,7 @@ def angka_input_with_format(label, key="formatted_input"):
     return value
 
 def home_page():
+    tampilkan_logo_kiri_atas()
     username = st.session_state["username"]
 
     # Ambil nama akun dan foto di pojok kiri atas
@@ -1012,6 +1088,17 @@ def main():
     """, unsafe_allow_html=True)
 
     if st.session_state["logged_in"]:
+        # Add logo to sidebar
+        logo_base64 = base64.b64encode(open("Xpense V5.png", "rb").read()).decode()
+        st.sidebar.markdown(
+            f"""
+            <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
+                <img src='data:image/png;base64,{logo_base64}' width='100' style='border-radius: 50%; border: 2px solid #4CAF50;'>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
         # Wrap each button in a div with a custom class to apply consistent width
         st.sidebar.markdown('<div class="sidebar-button-container">', unsafe_allow_html=True)
         if st.sidebar.button("🏠 Home"):
